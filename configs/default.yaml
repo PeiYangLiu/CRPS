@@ -1,0 +1,72 @@
+# CRPS Configuration
+
+# Model
+model:
+  name_or_path: "deepseek-ai/deepseek-math-7b-base"
+  backend: "vllm"  # vllm or hf
+  tensor_parallel_size: 1
+
+# MCTS Search
+mcts:
+  c_puct: 1.4
+  max_depth: 16
+  max_actions_per_node: 3
+  num_rollouts: 10
+  temperature: 0.7
+
+# Trajectory Sampling
+trajectory:
+  contrastive_pairs_per_problem: 10  # K
+
+# Synthesis
+synthesis:
+  temperature: 0.0
+  max_tokens: 2048
+
+# Analysis
+analysis:
+  temperature: 0.7
+  max_tokens: 1024
+
+# Dataset
+dataset:
+  seed_data:
+    - name: "gsm8k"
+      path: "gsm8k"
+      split: "train"
+    - name: "math"
+      path: "hendrycks/competition_math"
+      split: "train"
+  target_size: 30000  # 15K, 30K, or 60K
+  output_dir: "./data/synthesized"
+
+# Training
+training:
+  output_dir: "./outputs"
+  num_epochs: 3
+  per_device_batch_size: 2
+  gradient_accumulation_steps: 8  # effective batch = 2*8*8gpus = 128
+  learning_rate: 2.0e-5
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  weight_decay: 0.0
+  max_seq_length: 2048
+  bf16: true
+  deepspeed: "configs/ds_zero3.json"
+  logging_steps: 10
+  save_steps: 500
+  seed: 42
+
+# Evaluation
+evaluation:
+  benchmarks:
+    in_domain:
+      - "gsm8k"
+      - "math"
+    out_of_domain:
+      - "college_math"
+      - "deepmind_math"
+      - "olympiad_bench"
+      - "theorem_qa"
+  temperature: 0.0
+  max_tokens: 2048

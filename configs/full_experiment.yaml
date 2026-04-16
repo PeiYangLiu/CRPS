@@ -1,0 +1,80 @@
+# Full-scale CRPS experiment — paper parameters
+# MCTS: Qwen2.5-Math-7B (local vLLM)
+# Analysis & Synthesis: GPT-5 Mini
+# Seed data: GSM8K train (7473) + MATH train (7500) = ~15K problems
+# Target: CRPS-30K dataset
+
+# MCTS exploration model
+mcts_model:
+  name_or_path: "Qwen/Qwen2.5-Math-7B-Instruct"
+  backend: "vllm"
+  tensor_parallel_size: 1
+
+# Contrastive analysis model (GPT-5 Mini)
+analysis_model:
+  name_or_path: "gpt-5-mini"
+  backend: "anthropic"
+  api_base_url: "${ANTHROPIC_BASE_URL}"
+  api_key: "${ANTHROPIC_API_KEY}"
+
+# Path synthesis model (GPT-5 Mini)
+synthesis_model:
+  name_or_path: "gpt-5-mini"
+  backend: "anthropic"
+  api_base_url: "${ANTHROPIC_BASE_URL}"
+  api_key: "${ANTHROPIC_API_KEY}"
+
+# MCTS Search — PAPER SETTINGS
+mcts:
+  c_puct: 1.4
+  max_depth: 16
+  max_actions_per_node: 3
+  num_rollouts: 10
+  temperature: 0.7
+  expand_max_tokens: 256
+  simulate_max_tokens: 2048
+  batch_size: 8
+
+# Trajectory Sampling — PAPER SETTINGS
+trajectory:
+  contrastive_pairs_per_problem: 10  # K=10
+
+# Synthesis
+synthesis:
+  temperature: 0.0
+  max_tokens: 2048
+
+# Analysis
+analysis:
+  temperature: 0.7
+  max_tokens: 1024
+
+# Dataset
+dataset:
+  seed_data:
+    - name: "gsm8k"
+      path: "openai/gsm8k"
+      split: "train"
+      subset: "main"
+    - name: "math"
+      path: "DigitalLearningGmbH/MATH-lighteval"
+      split: "train"
+  target_size: 30000   # CRPS-30K
+  output_dir: "./data/full_experiment"
+
+# Training — PAPER SETTINGS
+training:
+  output_dir: "./outputs/deepseek-crps-30k"
+  num_epochs: 3
+  per_device_batch_size: 2
+  gradient_accumulation_steps: 8  # 2 * 8 * 8 = 128
+  learning_rate: 2.0e-5
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  weight_decay: 0.0
+  max_seq_length: 2048
+  bf16: true
+  deepspeed: "configs/ds_zero3.json"
+  logging_steps: 10
+  save_steps: 500
+  seed: 42

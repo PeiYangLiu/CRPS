@@ -1,0 +1,33 @@
+# Data and outputs
+data/
+outputs/
+eval_results*/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+
+# vLLM cache
+.cache/
+
+# Logs
+*.log
+nohup.out
+
+# OS
+.DS_Store
+*.ipynb
+.ipynb_checkpoints/
+
+
+# Results and models
+results_*/
+data/phase23_*/
+data/phase2_*
+data/train_*.jsonl
+data/phase1_*.jsonl
+data/shards/
+paper.tex
